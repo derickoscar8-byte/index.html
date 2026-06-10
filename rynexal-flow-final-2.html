@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rynexal Flow">
+<meta name="theme-color" content="#1a1917">
+<title>Rynexal Flow — Etobicoke General</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231a1917'/%3E%3Ctext y='.9em' font-size='72' x='12'%3E%E2%9F%B3%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f5f4f0; --surface:#fff; --surface2:#f0efe9;
+  --border:rgba(0,0,0,.08); --border-strong:rgba(0,0,0,.14);
+  --text:#1a1917; --text-muted:#6b6a65; --text-faint:#a8a79f;
+  /* shift colours */
+  --day:#f5d000;    --day-bg:#fefde8;   --day-text:#713f12;
+  --eve:#b45309;    --eve-bg:#fef3c7;   --eve-text:#431407;
+  --night:#7c3aed;  --night-bg:#f5f3ff; --night-text:#4c1d95;
+  /* status */
+  --green:#057a55;  --green-bg:#f3faf7; --green-text:#014737;
+  --amber:#92400e;  --amber-bg:#fffbeb; --amber-text:#78350f;
+  --red:#9b1c1c;    --red-bg:#fdf2f2;   --red-text:#771d1d;
+  --teal:#065f46;   --teal-bg:#ecfdf5;  --teal-text:#064e3b;
+  --blue:#1a56db;   --blue-bg:#eff4ff;  --blue-text:#1e429f;
+  --radius:12px; --radius-lg:16px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,.1),0 2px 4px rgba(0,0,0,.06);
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overscroll-behavior:none}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+/* LOGIN */
+#login-screen{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:calc(2rem + var(--safe-top)) 1.25rem calc(2rem + var(--safe-bottom))}
+.login-card{background:var(--surface);border-radius:22px;border:1px solid var(--border);padding:2rem 1.5rem;width:100%;max-width:390px;box-shadow:var(--shadow-md)}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:2rem}
+.login-logo-icon{width:46px;height:46px;background:var(--text);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;flex-shrink:0}
+.login-logo-text{font-size:20px;font-weight:600;letter-spacing:-.3px}
+.login-logo-sub{font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:.05em;text-transform:uppercase}
+.login-heading{font-size:22px;font-weight:600;margin-bottom:5px}
+.login-sub{font-size:14px;color:var(--text-muted);margin-bottom:1.5rem}
+.field-label{font-size:13px;font-weight:500;color:var(--text-muted);margin-bottom:6px;display:block}
+.field-input{width:100%;padding:13px 14px;border:1px solid var(--border-strong);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:16px;color:var(--text);background:var(--surface);margin-bottom:14px;outline:none;appearance:none;transition:border-color .15s,box-shadow .15s}
+.field-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.12)}
+.login-hint{font-size:12px;color:var(--text-faint);background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:1.25rem;line-height:1.7;font-family:'DM Mono',monospace}
+.btn-primary{width:100%;padding:14px;background:var(--text);color:#fff;border:none;border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:16px;font-weight:500;cursor:pointer;touch-action:manipulation}
+.btn-primary:active{opacity:.85}
+
+/* APP SHELL */
+#app{display:none;height:100dvh;flex-direction:column}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:calc(var(--safe-top) + 10px) 1rem 10px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:100}
+.topbar-brand{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:600}
+.topbar-brand-icon{width:30px;height:30px;background:var(--text);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.avatar-chip{display:flex;align-items:center;gap:6px;padding:5px 10px 5px 5px;border-radius:999px;border:1px solid var(--border);background:var(--surface)}
+.avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.avatar.blue{background:var(--blue-bg);color:var(--blue-text)}
+.avatar.green{background:var(--green-bg);color:var(--green-text)}
+.avatar-name{font-size:13px;font-weight:500}
+.role-pill{font-size:10px;padding:2px 7px;border-radius:999px;font-weight:600;font-family:'DM Mono',monospace}
+.role-pill.admin{background:var(--red-bg);color:var(--red-text)}
+.role-pill.nurse{background:var(--blue-bg);color:var(--blue-text)}
+.logout-btn{font-size:13px;color:var(--text-muted);background:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;cursor:pointer;font-family:'DM Sans',sans-serif;touch-action:manipulation}
+.logout-btn:active{background:var(--surface2)}
+
+.scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
+.main{padding:1.25rem 1rem calc(1.5rem + var(--safe-bottom))}
+.page{display:none}
+.page.active{display:block}
+
+/* BOTTOM NAV */
+.bottom-nav{background:var(--surface);border-top:1px solid var(--border);display:flex;padding-bottom:var(--safe-bottom);flex-shrink:0;z-index:100}
+.bottom-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px;font-size:10px;font-weight:500;color:var(--text-faint);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;touch-action:manipulation;gap:3px;position:relative}
+.bottom-tab.active{color:var(--blue)}
+.bottom-tab.hidden{display:none}
+.tab-icon{font-size:22px;line-height:1}
+.tab-notif{position:absolute;top:6px;left:calc(50% + 5px);background:var(--red);color:#fff;border-radius:999px;font-size:10px;font-weight:700;padding:1px 5px;min-width:16px;text-align:center;display:none}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.25rem}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px;box-shadow:var(--shadow);cursor:default}
+.stat-card.clickable{cursor:pointer;transition:border-color .15s}
+.stat-card.clickable:active{background:var(--surface2)}
+.stat-label{font-size:11px;color:var(--text-muted);margin-bottom:3px}
+.stat-value{font-size:24px;font-weight:600;letter-spacing:-.5px}
+.stat-sub{font-size:10px;color:var(--text-faint);margin-top:1px}
+
+/* WEEK HEADER */
+.week-header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.week-nav-btn{width:34px;height:34px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;color:var(--text);touch-action:manipulation;flex-shrink:0}
+.week-nav-btn:active{background:var(--surface2)}
+.week-titles{flex:1;min-width:0}
+.week-title{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.week-subtitle{font-size:12px;color:var(--text-muted)}
+
+/* DAY ROWS — tappable for worked shifts */
+.day-row{display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:8px;cursor:default;transition:border-color .15s}
+.day-row.worked{cursor:pointer}
+.day-row.worked:active{background:var(--surface2)}
+.day-row.today{border-color:rgba(26,86,219,.3);background:#fafbff}
+.day-row.today .day-num{color:var(--blue)}
+.day-info{text-align:center;width:46px;flex-shrink:0}
+.day-name{font-size:10px;color:var(--text-faint);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.05em}
+.day-num{font-size:22px;font-weight:600;letter-spacing:-.5px;line-height:1.2}
+.shift-block{flex:1;display:flex;align-items:center;gap:10px;min-width:0}
+.shift-bar{width:4px;height:38px;border-radius:99px;flex-shrink:0}
+.shift-bar.day{background:var(--day)}
+.shift-bar.eve{background:var(--eve)}
+.shift-bar.night{background:var(--night)}
+.shift-bar.off{background:#d1d5db}
+.shift-bar.avail{background:#10b981}
+.shift-bar.unavail{background:#ef4444}
+.shift-text{min-width:0}
+.shift-name{font-size:14px;font-weight:500}
+.shift-time{font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace}
+.shift-badge{font-size:10px;padding:3px 9px;border-radius:999px;font-weight:600;flex-shrink:0;font-family:'DM Mono',monospace;letter-spacing:.03em}
+.shift-badge.day{background:var(--day-bg);color:var(--day-text)}
+.shift-badge.eve{background:var(--eve-bg);color:var(--eve-text)}
+.shift-badge.night{background:var(--night-bg);color:var(--night-text)}
+.shift-badge.off{background:var(--surface2);color:var(--text-faint)}
+.shift-badge.avail{background:var(--teal-bg);color:var(--teal-text)}
+.shift-badge.unavail{background:var(--red-bg);color:var(--red-text)}
+
+/* AVAIL TOGGLE */
+.avail-toggle{display:flex;gap:5px;flex-shrink:0}
+.avail-btn{padding:5px 9px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text-muted);font-family:'DM Mono',monospace;touch-action:manipulation}
+.avail-btn.av-active{background:var(--teal-bg);color:var(--teal-text);border-color:rgba(5,122,85,.25)}
+.avail-btn.na-active{background:var(--red-bg);color:var(--red-text);border-color:rgba(155,28,28,.2)}
+
+/* LEGEND */
+.legend-row{display:flex;gap:12px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:10px 14px;margin-bottom:1rem;box-shadow:var(--shadow)}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted)}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* SECTION LABEL */
+.section-label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);font-family:'DM Mono',monospace;margin-bottom:10px;margin-top:1.5rem}
+.section-label:first-child{margin-top:0}
+
+/* SWAP PAGE */
+.new-swap-btn{width:100%;padding:13px;background:var(--text);color:#fff;border:none;border-radius:var(--radius-lg);font-size:15px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;touch-action:manipulation;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:center;gap:8px}
+.new-swap-btn:active{opacity:.85}
+
+/* SWAP CARDS */
+.swap-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:10px;box-shadow:var(--shadow)}
+.swap-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
+.swap-who{font-size:15px;font-weight:600}
+.swap-meta{font-size:12px;color:var(--text-muted);margin-top:2px}
+.status-pill{font-size:10px;padding:3px 9px;border-radius:999px;font-weight:700;font-family:'DM Mono',monospace;white-space:nowrap;flex-shrink:0;letter-spacing:.03em}
+.status-pill.pending{background:var(--amber-bg);color:var(--amber-text)}
+.status-pill.approved{background:var(--green-bg);color:var(--green-text)}
+.status-pill.declined{background:var(--red-bg);color:var(--red-text)}
+.swap-shifts{background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:10px;display:flex;flex-direction:column;gap:8px}
+.swap-shift-row{display:flex;align-items:flex-start;gap:8px}
+.swap-shift-label{font-size:10px;color:var(--text-faint);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.05em;width:52px;flex-shrink:0;padding-top:2px}
+.swap-shift-val{font-weight:500;color:var(--text);flex:1;font-size:13px}
+.swap-divider{height:1px;background:var(--border)}
+.swap-note{font-size:13px;color:var(--text-muted);font-style:italic;margin-bottom:10px}
+.swap-actions{display:flex;gap:7px;flex-wrap:wrap}
+.btn-approve,.btn-decline,.btn-override,.btn-cancel{padding:9px 14px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;touch-action:manipulation}
+.btn-approve{background:var(--green-bg);color:var(--green-text);border:1px solid rgba(5,122,85,.2)}
+.btn-approve:active{background:#dcfce7}
+.btn-decline{background:var(--red-bg);color:var(--red-text);border:1px solid rgba(155,28,28,.15)}
+.btn-decline:active{background:#fee2e2}
+.btn-override{background:var(--amber-bg);color:var(--amber-text);border:1px solid rgba(146,64,14,.15)}
+.btn-override:active{background:#fef3c7}
+.btn-cancel{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border)}
+.btn-cancel:active{background:#e5e4de}
+
+/* TIME OFF */
+.timeoff-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:10px;box-shadow:var(--shadow)}
+.timeoff-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+.timeoff-title{font-size:15px;font-weight:600}
+.timeoff-meta{font-size:12px;color:var(--text-muted);margin-top:2px}
+.timeoff-dates{background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:10px;display:flex;flex-direction:column;gap:6px;font-size:13px}
+.timeoff-row{display:flex;align-items:center;gap:8px}
+.timeoff-lbl{font-size:10px;color:var(--text-faint);font-family:'DM Mono',monospace;text-transform:uppercase;width:40px;flex-shrink:0}
+.timeoff-val{font-weight:500}
+.timeoff-reason{font-size:13px;color:var(--text-muted);font-style:italic;margin-bottom:10px}
+.timeoff-actions{display:flex;gap:7px;flex-wrap:wrap}
+.new-request-btn{width:100%;padding:13px;background:var(--text);color:#fff;border:none;border-radius:var(--radius-lg);font-size:15px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;touch-action:manipulation;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:center;gap:8px}
+.new-request-btn:active{opacity:.85}
+
+/* ADMIN */
+.card{background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);padding:0 14px;box-shadow:var(--shadow)}
+.staff-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+.staff-row:last-child{border-bottom:none}
+.staff-info{display:flex;align-items:center;gap:10px}
+.staff-name{font-size:14px;font-weight:500}
+.staff-role-sub{font-size:12px;color:var(--text-muted)}
+.staff-right{display:flex;align-items:center;gap:8px}
+.staff-shifts{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace}
+.dept-badge{font-size:10px;padding:2px 8px;border-radius:999px;font-weight:500;background:var(--surface2);color:var(--text-muted)}
+.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+
+/* MODAL */
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;align-items:flex-end;justify-content:center;backdrop-filter:blur(3px)}
+.modal-backdrop.open{display:flex}
+.modal{background:var(--surface);border-radius:24px 24px 0 0;padding:1.5rem 1.25rem calc(1.5rem + var(--safe-bottom));width:100%;max-width:500px;animation:slideUp .22s cubic-bezier(.32,.72,0,1);max-height:92dvh;overflow-y:auto}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;background:var(--border-strong);border-radius:999px;margin:0 auto 1.25rem}
+.modal-title{font-size:18px;font-weight:600;letter-spacing:-.3px;margin-bottom:5px}
+.modal-sub{font-size:14px;color:var(--text-muted);margin-bottom:1.25rem;line-height:1.5}
+.field-group{margin-bottom:14px}
+.modal select,.modal textarea,.modal input[type=date]{width:100%;padding:12px 14px;border:1px solid var(--border-strong);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:16px;color:var(--text);background:var(--surface);outline:none;appearance:none;-webkit-appearance:none;transition:border-color .15s,box-shadow .15s}
+.modal select:focus,.modal textarea:focus,.modal input[type=date]:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+.modal textarea{resize:none;min-height:70px}
+.modal-actions{display:flex;gap:8px;margin-top:1rem}
+.btn-modal-cancel{flex:1;padding:13px;border:1px solid var(--border-strong);background:none;border-radius:var(--radius);font-size:15px;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--text);touch-action:manipulation}
+.btn-modal-cancel:active{background:var(--surface2)}
+.btn-modal-submit{flex:2;padding:13px;background:var(--text);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;touch-action:manipulation}
+.btn-modal-submit:active{opacity:.85}
+
+/* MY SHIFT PREVIEW in swap modal */
+.my-shift-preview{background:var(--bg);border-radius:10px;padding:12px 14px;margin-bottom:14px;border-left:4px solid var(--day)}
+.my-shift-preview.eve-border{border-left-color:var(--eve)}
+.my-shift-preview.night-border{border-left-color:var(--night)}
+.my-shift-preview-label{font-size:10px;color:var(--text-faint);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.my-shift-preview-val{font-size:14px;font-weight:600;color:var(--text)}
+.my-shift-preview-time{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;margin-top:2px}
+
+/* COLLEAGUE SHIFT LIST */
+.colleague-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.colleague-row{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:border-color .15s,background .15s;touch-action:manipulation}
+.colleague-row:active{background:var(--surface2)}
+.colleague-row.selected{border-color:var(--blue);background:var(--blue-bg)}
+.colleague-avatar{width:32px;height:32px;border-radius:50%;background:var(--blue-bg);color:var(--blue-text);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.colleague-info{flex:1;min-width:0}
+.colleague-name{font-size:14px;font-weight:500}
+.colleague-shift{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace}
+.colleague-shift-badge{font-size:10px;padding:2px 8px;border-radius:999px;font-weight:600;font-family:'DM Mono',monospace;flex-shrink:0}
+
+/* HOURS BREAKDOWN MODAL */
+.hours-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.hours-box{background:var(--bg);border-radius:10px;padding:12px}
+.hours-box-label{font-size:11px;color:var(--text-faint);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.hours-box-val{font-size:22px;font-weight:600;letter-spacing:-.5px}
+.hours-box-sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+.hours-box.overtime .hours-box-val{color:var(--red)}
+.hours-bar-wrap{background:var(--bg);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.hours-bar-label{font-size:12px;color:var(--text-muted);margin-bottom:8px;display:flex;justify-content:space-between}
+.hours-bar-track{height:8px;background:#e5e5e5;border-radius:999px;overflow:hidden}
+.hours-bar-fill{height:100%;border-radius:999px;transition:width .4s ease}
+.shift-breakdown{background:var(--bg);border-radius:10px;padding:12px 14px}
+.shift-breakdown-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px}
+.shift-breakdown-row:last-child{border-bottom:none}
+.sbd-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-right:8px}
+
+/* TOAST */
+.toast-container{position:fixed;bottom:calc(70px + var(--safe-bottom) + 12px);left:50%;transform:translateX(-50%);z-index:600;pointer-events:none}
+.toast{background:rgba(26,25,23,.92);color:#fff;padding:10px 20px;border-radius:999px;font-size:14px;font-weight:500;opacity:0;transform:translateY(8px);transition:opacity .25s,transform .25s;white-space:nowrap;backdrop-filter:blur(8px)}
+.toast.show{opacity:1;transform:none}
+
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--text-faint);font-size:14px}
+.empty-icon{font-size:30px;margin-bottom:8px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">⟳</div>
+      <div>
+        <div class="login-logo-text">Rynexal Flow</div>
+        <div class="login-logo-sub">Etobicoke General Hospital</div>
+      </div>
+    </div>
+    <div class="login-heading">Welcome back</div>
+    <div class="login-sub">Sign in with your hospital credentials.</div>
+    <div class="login-hint">
+      Try: <strong>derick.singh</strong> / any password (nurse)<br>
+      Or: <strong>admin</strong> / any password (admin)
+    </div>
+    <label class="field-label">Username</label>
+    <input class="field-input" id="login-user" type="text" placeholder="e.g. derick.singh" autocomplete="username" autocorrect="off" autocapitalize="none" spellcheck="false"/>
+    <label class="field-label">Password</label>
+    <input class="field-input" id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password"/>
+    <div id="login-error" style="font-size:13px;color:var(--red);margin-bottom:12px;display:none">Invalid credentials. Please try again.</div>
+    <button class="btn-primary" onclick="doLogin()">Sign in</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none;height:100dvh;flex-direction:column;">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-brand-icon">⟳</div>
+      Rynexal Flow
+    </div>
+    <div class="topbar-right">
+      <div class="avatar-chip">
+        <div class="avatar blue" id="topbar-avatar">DS</div>
+        <span class="avatar-name" id="topbar-name">Derick Singh</span>
+        <span class="role-pill nurse" id="topbar-role">RN</span>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">Out</button>
+    </div>
+  </div>
+
+  <div class="scroll-area">
+    <div class="main">
+
+      <!-- SCHEDULE -->
+      <div class="page active" id="page-schedule">
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-label">Shifts</div>
+            <div class="stat-value">4</div>
+            <div class="stat-sub">this week</div>
+          </div>
+          <div class="stat-card clickable" onclick="openHoursModal()" title="Tap for breakdown">
+            <div class="stat-label">Hours ⓘ</div>
+            <div class="stat-value">36</div>
+            <div class="stat-sub">tap for breakdown</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Next shift</div>
+            <div class="stat-value" style="font-size:16px;margin-top:2px">Tue Jun 10</div>
+            <div class="stat-sub">Day · 07:00–15:00</div>
+          </div>
+        </div>
+
+        <div class="week-header">
+          <button class="week-nav-btn" onclick="changeWeek(-1)">‹</button>
+          <div class="week-titles">
+            <div class="week-title" id="week-label">Jun 8 – Jun 14</div>
+            <div class="week-subtitle">Etobicoke General · Emerg</div>
+          </div>
+          <button class="week-nav-btn" onclick="changeWeek(1)">›</button>
+        </div>
+
+        <div class="legend-row">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--day)"></div>Day</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--eve)"></div>Evening</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--night)"></div>Night</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div>AV</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>N/A</div>
+        </div>
+
+        <div id="schedule-days"></div>
+        <div style="font-size:12px;color:var(--text-faint);text-align:center;margin-top:8px">Tap a shift to request a swap · Tap AV/N/A on days off</div>
+      </div>
+
+      <!-- SWAPS -->
+      <div class="page" id="page-swaps">
+        <button class="new-swap-btn" onclick="openSwapModal(null)">⇄ New swap request</button>
+        <div class="section-label">My outgoing requests</div>
+        <div id="outgoing-list"></div>
+        <div class="section-label">Incoming requests</div>
+        <div id="incoming-list"></div>
+      </div>
+
+      <!-- TIME OFF -->
+      <div class="page" id="page-timeoff">
+        <button class="new-request-btn" onclick="openTimeoffModal()">＋ New time-off request</button>
+        <div class="section-label">My requests</div>
+        <div id="timeoff-list"></div>
+      </div>
+
+      <!-- ADMIN -->
+      <div class="page" id="page-admin">
+        <div class="section-label">Pending swaps</div>
+        <div id="admin-swaps-list"></div>
+        <div class="section-label" style="margin-top:1.5rem">Time-off requests</div>
+        <div id="admin-timeoff-list"></div>
+        <div class="section-label" style="margin-top:1.5rem">Staff roster</div>
+        <div class="card"><div id="staff-list"></div></div>
+        <div class="section-label" style="margin-top:1.5rem">By department</div>
+        <div class="admin-grid" id="dept-grid"></div>
+        <div style="height:1rem"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="bottom-tab active" onclick="showPage('schedule',this)" id="tab-schedule">
+      <div class="tab-icon">📅</div>Schedule
+    </button>
+    <button class="bottom-tab" onclick="showPage('swaps',this)" id="tab-swaps">
+      <div class="tab-icon">🔄</div>Swaps
+      <span class="tab-notif" id="swap-notif">0</span>
+    </button>
+    <button class="bottom-tab" onclick="showPage('timeoff',this)" id="tab-timeoff">
+      <div class="tab-icon">🏖</div>Time Off
+    </button>
+    <button class="bottom-tab hidden" onclick="showPage('admin',this)" id="tab-admin">
+      <div class="tab-icon">🛡</div>Admin
+    </button>
+  </div>
+</div>
+
+<!-- SWAP MODAL -->
+<div class="modal-backdrop" id="swap-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Request a shift swap</div>
+    <div class="modal-sub">Select your shift, then pick a colleague and their shift to swap with.</div>
+
+    <!-- Step 1: my shift -->
+    <div class="field-group">
+      <label class="field-label">Your shift</label>
+      <select id="modal-my-shift" onchange="updateColleagueList()"></select>
+    </div>
+
+    <!-- Step 2: pick colleague + their shift -->
+    <div class="field-group">
+      <label class="field-label">Swap with</label>
+      <div class="colleague-list" id="colleague-list"></div>
+    </div>
+
+    <!-- Note -->
+    <div class="field-group">
+      <label class="field-label">Note <span style="color:var(--text-faint)">(optional)</span></label>
+      <textarea id="modal-note" placeholder="e.g. Family appointment — could we swap?"></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeSwapModal()">Cancel</button>
+      <button class="btn-modal-submit" onclick="submitSwapRequest()">Send request</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOURS MODAL -->
+<div class="modal-backdrop" id="hours-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Hours breakdown</div>
+    <div class="modal-sub">Week of <span id="hours-week-label">Jun 8 – Jun 14, 2026</span> · Etobicoke General Emerg</div>
+
+    <div class="hours-grid">
+      <div class="hours-box">
+        <div class="hours-box-label">Regular</div>
+        <div class="hours-box-val">64h</div>
+        <div class="hours-box-sub">Standard hrs</div>
+      </div>
+      <div class="hours-box overtime">
+        <div class="hours-box-label">Overtime</div>
+        <div class="hours-box-val">4h</div>
+        <div class="hours-box-sub">Above 64h/period</div>
+      </div>
+      <div class="hours-box">
+        <div class="hours-box-label">Pay Period Total</div>
+        <div class="hours-box-val">68h</div>
+        <div class="hours-box-sub">Jun 1 – Jun 14</div>
+      </div>
+    </div>
+
+    <div class="shift-breakdown">
+      <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;font-family:'DM Mono',monospace">This week's shifts</div>
+      <div class="shift-breakdown-row">
+        <div style="display:flex;align-items:center"><div class="sbd-dot" style="background:var(--day)"></div>Tue Jun 10 — Day</div>
+        <span style="font-family:'DM Mono',monospace;font-size:12px">8h</span>
+      </div>
+      <div class="shift-breakdown-row">
+        <div style="display:flex;align-items:center"><div class="sbd-dot" style="background:var(--night)"></div>Wed Jun 11 — Night</div>
+        <span style="font-family:'DM Mono',monospace;font-size:12px">8h</span>
+      </div>
+      <div class="shift-breakdown-row">
+        <div style="display:flex;align-items:center"><div class="sbd-dot" style="background:var(--day)"></div>Thu Jun 12 — Day</div>
+        <span style="font-family:'DM Mono',monospace;font-size:12px">8h</span>
+      </div>
+      <div class="shift-breakdown-row">
+        <div style="display:flex;align-items:center"><div class="sbd-dot" style="background:var(--eve)"></div>Sat Jun 14 — Evening</div>
+        <span style="font-family:'DM Mono',monospace;font-size:12px">12h</span>
+      </div>
+      <div class="shift-breakdown-row" style="font-weight:600;margin-top:4px">
+        <span>Total</span>
+        <span style="font-family:'DM Mono',monospace;font-size:12px">36h</span>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-modal-submit" onclick="closeHoursModal()">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- TIME OFF MODAL -->
+<div class="modal-backdrop" id="timeoff-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Request time off</div>
+    <div class="modal-sub">Submit a request for your manager to review and approve.</div>
+    <div class="field-group">
+      <label class="field-label">Start date</label>
+      <input type="date" id="to-start"/>
+    </div>
+    <div class="field-group">
+      <label class="field-label">End date</label>
+      <input type="date" id="to-end"/>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Type of leave</label>
+      <select id="to-type">
+        <option>Vacation</option>
+        <option>Sick leave</option>
+        <option>Personal day</option>
+        <option>Bereavement</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Reason <span style="color:var(--text-faint)">(optional)</span></label>
+      <textarea id="to-reason" placeholder="e.g. Family vacation, medical appointment..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeTimeoffModal()">Cancel</button>
+      <button class="btn-modal-submit" onclick="submitTimeoff()">Submit request</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container"><div class="toast" id="toast"></div></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────
+const USERS = {
+  'derick.singh': { name:'Derick Singh', initials:'DS', role:'RN', dept:'Emerg', isAdmin:false },
+  'admin': { name:'Admin User', initials:'AU', role:'Admin', dept:'All', isAdmin:true },
+};
+
+// type: 'day'=07-15, 'eve'=15-23, 'night'=23-07
+const BASE_SCHEDULE = [
+  { day:'Sun', date:8,  type:'off'   },
+  { day:'Mon', date:9,  type:'off'   },
+  { day:'Tue', date:10, type:'day'   },
+  { day:'Wed', date:11, type:'night' },
+  { day:'Thu', date:12, type:'day'   },
+  { day:'Fri', date:13, type:'off'   },
+  { day:'Sat', date:14, type:'eve'   },
+];
+
+const SHIFT_INFO = {
+  day:   { label:'Day shift',     time:'07:00 – 15:00', hours:8,  badge:'Day',     borderClass:'',            color:'var(--day)'   },
+  eve:   { label:'Evening shift', time:'15:00 – 23:00', hours:8,  badge:'Evening', borderClass:'eve-border',  color:'var(--eve)'   },
+  night: { label:'Night shift',   time:'23:00 – 07:00', hours:8,  badge:'Night',   borderClass:'night-border',color:'var(--night)' },
+};
+
+const COLLEAGUES = [
+  { name:'Slim Shady',      initials:'SS', role:'RN',  shifts:[
+    { type:'day',   label:'Mon Jun 9',   full:'Mon Jun 9 — Day (07:00–15:00)'   },
+    { type:'night', label:'Thu Jun 12',  full:'Thu Jun 12 — Night (23:00–07:00)'},
+  ]},
+  { name:'Lil Wayne',       initials:'LW', role:'RN',  shifts:[
+    { type:'eve',   label:'Sat Jun 14',  full:'Sat Jun 14 — Evening (15:00–23:00)'},
+    { type:'day',   label:'Mon Jun 9',   full:'Mon Jun 9 — Day (07:00–15:00)'   },
+  ]},
+  { name:'Leroy Brown',     initials:'LB', role:'RPN', shifts:[
+    { type:'day',   label:'Wed Jun 11',  full:'Wed Jun 11 — Day (07:00–15:00)'  },
+    { type:'night', label:'Fri Jun 13',  full:'Fri Jun 13 — Night (23:00–07:00)'},
+  ]},
+  { name:'Marshall Mathers',initials:'MM', role:'RN',  shifts:[
+    { type:'day',   label:'Tue Jun 10',  full:'Tue Jun 10 — Day (07:00–15:00)'  },
+    { type:'eve',   label:'Sat Jun 14',  full:'Sat Jun 14 — Evening (15:00–23:00)'},
+  ]},
+  { name:'Sir Cletus',      initials:'SC', role:'RN',  shifts:[
+    { type:'night', label:'Mon Jun 9',   full:'Mon Jun 9 — Night (23:00–07:00)' },
+    { type:'day',   label:'Thu Jun 12',  full:'Thu Jun 12 — Day (07:00–15:00)'  },
+  ]},
+];
+
+const MY_SHIFTS = BASE_SCHEDULE.filter(d=>d.type!=='off').map(d => {
+  const info = SHIFT_INFO[d.type];
+  return { key: `${d.day} Jun ${d.date}`, label:`${d.day} Jun ${d.date} — ${info.badge} (${info.time})`, type:d.type };
+});
+
+const availability = {};
+
+let swapRequests = [
+  { id:1, type:'incoming', from:'Slim Shady', fromShift:'Thu Jun 12 — Night (23:00–07:00)', wantShift:'Tue Jun 10 — Day (07:00–15:00)', note:'Dentist appointment Thursday — would really appreciate this!', status:'pending' },
+  { id:2, type:'incoming', from:'Lil Wayne',  fromShift:'Sat Jun 14 — Evening (15:00–23:00)', wantShift:'Thu Jun 12 — Day (07:00–15:00)', note:'', status:'pending' },
+  { id:3, type:'outgoing', to:'Leroy Brown',  myShift:'Wed Jun 11 — Night (23:00–07:00)', theirShift:'Wed Jun 11 — Day (07:00–15:00)', note:'Personal commitment Wednesday night', status:'approved' },
+];
+
+let timeoffRequests = [
+  { id:1, start:'Jun 20, 2026', end:'Jun 22, 2026', type:'Vacation', reason:'Family trip to Niagara Falls', status:'pending' },
+  { id:2, start:'Jul 4, 2026',  end:'Jul 4, 2026',  type:'Personal day', reason:'', status:'approved' },
+];
+
+const STAFF = [
+  { name:'Derick Singh',   initials:'DS', role:'RN',  dept:'Emerg', shifts:4 },
+  { name:'Slim Shady',     initials:'SS', role:'RN',  dept:'Emerg', shifts:4 },
+  { name:'Lil Wayne',      initials:'LW', role:'RN',  dept:'Emerg', shifts:3 },
+  { name:'Leroy Brown',    initials:'LB', role:'RPN', dept:'Emerg', shifts:5 },
+  { name:'Marshall Mathers',initials:'MM',role:'RN',  dept:'Emerg', shifts:4 },
+  { name:'Sir Cletus',     initials:'SC', role:'RN',  dept:'Emerg', shifts:3 },
+  { name:'Diane Park',     initials:'DP', role:'RPN', dept:'Emerg', shifts:4 },
+  { name:'Raj Patel',      initials:'RP', role:'RN',  dept:'Med',   shifts:5 },
+];
+
+let weekOffset = 0;
+let currentUser = null;
+let selectedColleagueIdx = null;
+let selectedColleagueShiftIdx = null;
+
+// ── LOGIN ──────────────────────────────────────────────────────────────
+function doLogin() {
+  const u = document.getElementById('login-user').value.trim().toLowerCase();
+  const p = document.getElementById('login-pass').value;
+  const err = document.getElementById('login-error');
+  if (!u||!p){err.style.display='block';err.textContent='Please enter your username and password.';return;}
+  if (!USERS[u]){err.style.display='block';err.textContent='Invalid credentials. Please try again.';return;}
+  err.style.display='none';
+  currentUser=USERS[u];
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('topbar-avatar').textContent=currentUser.initials;
+  document.getElementById('topbar-name').textContent=currentUser.name;
+  document.getElementById('topbar-role').textContent=currentUser.role;
+  document.getElementById('topbar-role').className='role-pill '+(currentUser.isAdmin?'admin':'nurse');
+  if(currentUser.isAdmin) document.getElementById('tab-admin').classList.remove('hidden');
+  renderSchedule(); renderSwaps(); renderTimeoff(); renderAdmin(); updateSwapBadge();
+}
+
+function doLogout(){
+  currentUser=null;
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-user').value='';
+  document.getElementById('login-pass').value='';
+  document.getElementById('tab-admin').classList.add('hidden');
+}
+
+document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('login-user').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+// ── NAVIGATION ─────────────────────────────────────────────────────────
+function showPage(name,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.bottom-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  el.classList.add('active');
+  document.querySelector('.scroll-area').scrollTop=0;
+}
+
+// ── SCHEDULE ───────────────────────────────────────────────────────────
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function changeWeek(dir){weekOffset+=dir;renderSchedule();}
+
+function setAvailability(key,val){
+  availability[key]=availability[key]===val?null:val;
+  renderSchedule();
+  showToast(availability[key]==='av'?'Marked as Available':availability[key]==='na'?'Marked as Not Available':'Availability cleared');
+}
+
+function renderSchedule(){
+  const base=new Date(2026,5,8); base.setDate(base.getDate()+weekOffset*7);
+  const end=new Date(base); end.setDate(end.getDate()+6);
+  document.getElementById('week-label').textContent=`${MONTHS[base.getMonth()]} ${base.getDate()} – ${MONTHS[end.getMonth()]} ${end.getDate()}, 2026`;
+  document.getElementById('hours-week-label').textContent=`${MONTHS[base.getMonth()]} ${base.getDate()} – ${MONTHS[end.getMonth()]} ${end.getDate()}, 2026`;
+
+  const TODAY=9;
+  document.getElementById('schedule-days').innerHTML=BASE_SCHEDULE.map(d=>{
+    const adjDate=d.date+weekOffset*7;
+    const isToday=adjDate===TODAY&&weekOffset===0;
+    const avKey=`${adjDate}_${weekOffset}`;
+    const av=availability[avKey];
+
+    let barClass, name, time, badgeClass, badgeText;
+
+    if(d.type==='off'){
+      if(av==='av'){barClass='avail';name='Available';time='Day off';badgeClass='avail';badgeText='AV';}
+      else if(av==='na'){barClass='unavail';name='Not Available';time='Day off';badgeClass='unavail';badgeText='N/A';}
+      else{barClass='off';name='Day off';time='—';badgeClass='off';badgeText='Off';}
+    } else {
+      const info=SHIFT_INFO[d.type];
+      barClass=d.type; name=info.label; time=info.time; badgeClass=d.type; badgeText=info.badge;
+    }
+
+    const shiftKey=`${d.day} Jun ${adjDate}`;
+    const myShiftLabel=d.type!=='off'?`${shiftKey} — ${SHIFT_INFO[d.type].badge} (${SHIFT_INFO[d.type].time})`:'';
+
+    const rightSide=d.type!=='off'
+      ?`<div style="font-size:11px;color:var(--text-faint);font-family:'DM Mono',monospace">tap to swap →</div>`
+      :`<div class="avail-toggle">
+          <button class="avail-btn ${av==='av'?'av-active':''}" onclick="event.stopPropagation();setAvailability('${avKey}','av')">AV</button>
+          <button class="avail-btn ${av==='na'?'na-active':''}" onclick="event.stopPropagation();setAvailability('${avKey}','na')">N/A</button>
+        </div>`;
+
+    const clickAttr=d.type!=='off'?`onclick="openSwapModal('${myShiftLabel}')"` :'';
+
+    return `
+      <div class="day-row ${isToday?'today':''} ${d.type!=='off'?'worked':''}" ${clickAttr}>
+        <div class="day-info">
+          <div class="day-name">${d.day}</div>
+          <div class="day-num">${adjDate}</div>
+        </div>
+        <div class="shift-block">
+          <div class="shift-bar ${barClass}"></div>
+          <div class="shift-text">
+            <div class="shift-name">${name}</div>
+            <div class="shift-time">${time}</div>
+          </div>
+          <span class="shift-badge ${badgeClass}">${badgeText}</span>
+        </div>
+        ${rightSide}
+      </div>`;
+  }).join('');
+}
+
+// ── SWAP MODAL ─────────────────────────────────────────────────────────
+function openSwapModal(preSelectedShift){
+  selectedColleagueIdx=null;
+  selectedColleagueShiftIdx=null;
+
+  // Populate my shifts dropdown
+  const sel=document.getElementById('modal-my-shift');
+  sel.innerHTML=MY_SHIFTS.map((s,i)=>`<option value="${i}">${s.label}</option>`).join('');
+
+  // Pre-select if a shift was tapped
+  if(preSelectedShift){
+    const idx=MY_SHIFTS.findIndex(s=>s.label===preSelectedShift);
+    if(idx>=0) sel.value=idx;
+  }
+
+  document.getElementById('modal-note').value='';
+  updateColleagueList();
+  document.getElementById('swap-modal').classList.add('open');
+}
+
+function closeSwapModal(){document.getElementById('swap-modal').classList.remove('open');}
+
+function updateColleagueList(){
+  selectedColleagueIdx=null; selectedColleagueShiftIdx=null;
+  const listEl=document.getElementById('colleague-list');
+  listEl.innerHTML=COLLEAGUES.map((c,ci)=>
+    c.shifts.map((s,si)=>{
+      const info=SHIFT_INFO[s.type];
+      return `<div class="colleague-row" id="crow-${ci}-${si}" onclick="selectColleague(${ci},${si})">
+        <div class="colleague-avatar">${c.initials}</div>
+        <div class="colleague-info">
+          <div class="colleague-name">${c.name} <span style="font-size:11px;color:var(--text-faint)">${c.role}</span></div>
+          <div class="colleague-shift">${s.label} · ${info.badge} ${info.time}</div>
+        </div>
+        <span class="colleague-shift-badge" style="background:${info.color}20;color:${info.color}">${info.badge}</span>
+      </div>`;
+    }).join('')
+  ).join('');
+}
+
+function selectColleague(ci,si){
+  // deselect all
+  document.querySelectorAll('.colleague-row').forEach(r=>r.classList.remove('selected'));
+  document.getElementById(`crow-${ci}-${si}`).classList.add('selected');
+  selectedColleagueIdx=ci;
+  selectedColleagueShiftIdx=si;
+}
+
+function submitSwapRequest(){
+  const myShiftIdx=parseInt(document.getElementById('modal-my-shift').value);
+  if(selectedColleagueIdx===null){showToast('Please select a colleague to swap with');return;}
+  const myShift=MY_SHIFTS[myShiftIdx];
+  const colleague=COLLEAGUES[selectedColleagueIdx];
+  const theirShift=colleague.shifts[selectedColleagueShiftIdx];
+  const note=document.getElementById('modal-note').value.trim();
+  swapRequests.push({
+    id:Date.now(), type:'outgoing',
+    to:colleague.name,
+    myShift:myShift.label,
+    theirShift:theirShift.full,
+    note, status:'pending'
+  });
+  closeSwapModal(); renderSwaps();
+  document.getElementById('stat-pending').textContent=swapRequests.filter(s=>s.status==='pending').length;
+  showToast(`Swap request sent to ${colleague.name}`);
+  // Switch to swaps tab
+  showPage('swaps', document.getElementById('tab-swaps'));
+  updateSwapBadge();
+}
+
+// ── HOURS MODAL ────────────────────────────────────────────────────────
+function openHoursModal(){document.getElementById('hours-modal').classList.add('open');}
+function closeHoursModal(){document.getElementById('hours-modal').classList.remove('open');}
+
+// ── SWAPS ──────────────────────────────────────────────────────────────
+function renderSwaps(){renderIncoming();renderOutgoing();updateSwapBadge();}
+
+function renderIncoming(){
+  const list=document.getElementById('incoming-list');
+  const inc=swapRequests.filter(s=>s.type==='incoming');
+  if(!inc.length){list.innerHTML='<div class="empty"><div class="empty-icon">✓</div>No incoming requests</div>';return;}
+  list.innerHTML=inc.map(s=>`
+    <div class="swap-card">
+      <div class="swap-top">
+        <div><div class="swap-who">${s.from} wants to swap</div><div class="swap-meta">Incoming · Emerg</div></div>
+        <span class="status-pill ${s.status}">${s.status}</span>
+      </div>
+      <div class="swap-shifts">
+        <div class="swap-shift-row"><div class="swap-shift-label">Offers</div><div class="swap-shift-val">${s.fromShift}</div></div>
+        <div class="swap-divider"></div>
+        <div class="swap-shift-row"><div class="swap-shift-label">Wants</div><div class="swap-shift-val">${s.wantShift}</div></div>
+      </div>
+      ${s.note?`<div class="swap-note">"${s.note}"</div>`:''}
+      <div class="swap-actions">
+        ${s.status==='pending'?`
+          <button class="btn-approve" onclick="handleSwap(${s.id},'approved')">✓ Approve</button>
+          <button class="btn-decline" onclick="handleSwap(${s.id},'declined')">✕ Decline</button>
+          ${currentUser?.isAdmin?`<button class="btn-override" onclick="handleSwap(${s.id},'approved',true)">🛡 Override</button>`:''}
+        `:`<span style="font-size:12px;color:var(--text-faint)">No action needed</span>`}
+      </div>
+    </div>`).join('');
+}
+
+function renderOutgoing(){
+  const list=document.getElementById('outgoing-list');
+  const out=swapRequests.filter(s=>s.type==='outgoing');
+  if(!out.length){list.innerHTML='<div class="empty"><div class="empty-icon">↗</div>No outgoing requests</div>';return;}
+  list.innerHTML=out.map(s=>`
+    <div class="swap-card">
+      <div class="swap-top">
+        <div><div class="swap-who">Request to ${s.to}</div><div class="swap-meta">Sent by you · Emerg</div></div>
+        <span class="status-pill ${s.status}">${s.status}</span>
+      </div>
+      <div class="swap-shifts">
+        <div class="swap-shift-row"><div class="swap-shift-label">Your shift</div><div class="swap-shift-val">${s.myShift}</div></div>
+        <div class="swap-divider"></div>
+        <div class="swap-shift-row"><div class="swap-shift-label">Their shift</div><div class="swap-shift-val">${s.theirShift}</div></div>
+      </div>
+      ${s.note?`<div class="swap-note">"${s.note}"</div>`:''}
+      <div class="swap-actions">
+        ${s.status==='pending'?`<button class="btn-cancel" onclick="cancelSwap(${s.id})">Cancel</button>`:`<span style="font-size:12px;color:var(--text-faint)">No further action</span>`}
+      </div>
+    </div>`).join('');
+}
+
+function handleSwap(id,action,override=false){
+  const s=swapRequests.find(s=>s.id===id);
+  if(!s)return;
+  s.status=action;
+  renderSwaps();
+  if(currentUser?.isAdmin)renderAdmin();
+  showToast(override?`Admin override — swap ${action}`:action==='approved'?'Swap approved ✓':'Swap declined');
+  document.getElementById('stat-pending').textContent=swapRequests.filter(s=>s.status==='pending').length;
+}
+
+function cancelSwap(id){
+  swapRequests=swapRequests.filter(s=>s.id!==id);
+  renderSwaps();
+  showToast('Request cancelled');
+  document.getElementById('stat-pending').textContent=swapRequests.filter(s=>s.status==='pending').length;
+}
+
+function updateSwapBadge(){
+  const n=swapRequests.filter(s=>s.type==='incoming'&&s.status==='pending').length;
+  const b=document.getElementById('swap-notif');
+  b.style.display=n>0?'block':'none';
+  b.textContent=n;
+}
+
+// ── TIME OFF ───────────────────────────────────────────────────────────
+function renderTimeoff(){
+  const list=document.getElementById('timeoff-list');
+  if(!timeoffRequests.length){list.innerHTML='<div class="empty"><div class="empty-icon">🏖</div>No time-off requests yet</div>';return;}
+  list.innerHTML=timeoffRequests.map(r=>`
+    <div class="timeoff-card">
+      <div class="timeoff-top">
+        <div><div class="timeoff-title">${r.type}</div><div class="timeoff-meta">Submitted to Emerg manager</div></div>
+        <span class="status-pill ${r.status}">${r.status}</span>
+      </div>
+      <div class="timeoff-dates">
+        <div class="timeoff-row"><span class="timeoff-lbl">From</span><span class="timeoff-val">${r.start}</span></div>
+        <div class="swap-divider"></div>
+        <div class="timeoff-row"><span class="timeoff-lbl">To</span><span class="timeoff-val">${r.end}</span></div>
+      </div>
+      ${r.reason?`<div class="timeoff-reason">"${r.reason}"</div>`:''}
+      <div class="timeoff-actions">
+        ${r.status==='pending'?`<button class="btn-cancel" onclick="cancelTimeoff(${r.id})">Cancel request</button>`:`<span style="font-size:12px;color:var(--text-faint)">No further action</span>`}
+      </div>
+    </div>`).join('');
+}
+
+function cancelTimeoff(id){
+  timeoffRequests=timeoffRequests.filter(r=>r.id!==id);
+  renderTimeoff();
+  if(currentUser?.isAdmin)renderAdmin();
+  showToast('Time-off request cancelled');
+}
+
+function openTimeoffModal(){
+  const today=new Date(), tomorrow=new Date(today);
+  tomorrow.setDate(tomorrow.getDate()+1);
+  const fmt=d=>d.toISOString().split('T')[0];
+  document.getElementById('to-start').value=fmt(today);
+  document.getElementById('to-end').value=fmt(tomorrow);
+  document.getElementById('to-reason').value='';
+  document.getElementById('timeoff-modal').classList.add('open');
+}
+function closeTimeoffModal(){document.getElementById('timeoff-modal').classList.remove('open');}
+
+function submitTimeoff(){
+  const start=document.getElementById('to-start').value;
+  const end=document.getElementById('to-end').value;
+  const type=document.getElementById('to-type').value;
+  const reason=document.getElementById('to-reason').value.trim();
+  if(!start||!end){showToast('Please select both dates');return;}
+  const fmt=s=>{const d=new Date(s+'T12:00:00');return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;};
+  timeoffRequests.unshift({id:Date.now(),start:fmt(start),end:fmt(end),type,reason,status:'pending'});
+  closeTimeoffModal(); renderTimeoff();
+  if(currentUser?.isAdmin)renderAdmin();
+  showToast('Time-off request submitted ✓');
+}
+
+// ── ADMIN ──────────────────────────────────────────────────────────────
+function renderAdmin(){
+  const pending=swapRequests.filter(s=>s.status==='pending');
+  const adminList=document.getElementById('admin-swaps-list');
+  if(!pending.length){adminList.innerHTML='<div class="empty"><div class="empty-icon">✓</div>No pending swaps</div>';}
+  else{adminList.innerHTML=pending.map(s=>`
+    <div class="swap-card">
+      <div class="swap-top">
+        <div><div class="swap-who">${s.type==='incoming'?`${s.from} → Derick Singh`:`Derick Singh → ${s.to}`}</div>
+        <div class="swap-meta">Emerg · ${s.type==='incoming'?'Incoming':'Outgoing'}</div></div>
+        <span class="status-pill pending">pending</span>
+      </div>
+      <div class="swap-shifts">
+        <div class="swap-shift-row"><div class="swap-shift-label">Offered</div><div class="swap-shift-val">${s.type==='incoming'?s.fromShift:s.myShift}</div></div>
+        <div class="swap-divider"></div>
+        <div class="swap-shift-row"><div class="swap-shift-label">Wanted</div><div class="swap-shift-val">${s.type==='incoming'?s.wantShift:s.theirShift}</div></div>
+      </div>
+      <div class="swap-actions">
+        <button class="btn-approve" onclick="handleSwap(${s.id},'approved')">✓ Approve</button>
+        <button class="btn-decline" onclick="handleSwap(${s.id},'declined')">✕ Decline</button>
+        <button class="btn-override" onclick="handleSwap(${s.id},'approved',true)">🛡 Override</button>
+      </div>
+    </div>`).join('');}
+
+  const adminToList=document.getElementById('admin-timeoff-list');
+  const pendingTo=timeoffRequests.filter(r=>r.status==='pending');
+  if(!pendingTo.length){adminToList.innerHTML='<div class="empty"><div class="empty-icon">🏖</div>No pending time-off requests</div>';}
+  else{adminToList.innerHTML=pendingTo.map(r=>`
+    <div class="timeoff-card">
+      <div class="timeoff-top">
+        <div><div class="timeoff-title">Derick Singh — ${r.type}</div><div class="timeoff-meta">${r.start} → ${r.end}</div></div>
+        <span class="status-pill ${r.status}">${r.status}</span>
+      </div>
+      ${r.reason?`<div class="timeoff-reason">"${r.reason}"</div>`:''}
+      <div class="timeoff-actions">
+        <button class="btn-approve" onclick="handleTimeoff(${r.id},'approved')">✓ Approve</button>
+        <button class="btn-decline" onclick="handleTimeoff(${r.id},'declined')">✕ Decline</button>
+      </div>
+    </div>`).join('');}
+
+  document.getElementById('staff-list').innerHTML=STAFF.map(s=>`
+    <div class="staff-row">
+      <div class="staff-info">
+        <div class="avatar blue">${s.initials}</div>
+        <div><div class="staff-name">${s.name}</div><div class="staff-role-sub">${s.role} · ${s.dept}</div></div>
+      </div>
+      <div class="staff-right">
+        <span class="dept-badge">${s.dept}</span>
+        <span class="staff-shifts">${s.shifts}sh</span>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('dept-grid').innerHTML=[
+    {name:'Emerg',val:7,sub:'28 shifts this week'},
+    {name:'Medical',val:1,sub:'5 shifts this week'},
+    {name:'Pending swaps',val:swapRequests.filter(s=>s.status==='pending').length,sub:'awaiting action'},
+    {name:'Time-off pending',val:timeoffRequests.filter(r=>r.status==='pending').length,sub:'awaiting approval'},
+  ].map(d=>`<div class="stat-card"><div class="stat-label">${d.name}</div><div class="stat-value">${d.val}</div><div class="stat-sub">${d.sub}</div></div>`).join('');
+}
+
+function handleTimeoff(id,action){
+  const r=timeoffRequests.find(r=>r.id===id);
+  if(!r)return;
+  r.status=action;
+  renderAdmin(); renderTimeoff();
+  showToast(`Time-off request ${action}`);
+}
+
+// ── TOAST ──────────────────────────────────────────────────────────────
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+// close modals on backdrop tap
+['swap-modal','hours-modal','timeoff-modal'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',function(e){
+    if(e.target===this) this.classList.remove('open');
+  });
+});
+</script>
+</body>
+</html>
